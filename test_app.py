@@ -219,7 +219,7 @@ class TestExternalAPIEndpoints:
 class TestAddFromExternalAPI:
     """Test suite for adding items from external API."""
 
-    @patch("external_api.fetch_product_by_barcode")
+    @patch("app.fetch_product_by_barcode")
     def test_add_from_external_api_success(self, mock_fetch, client, reset_db):
         """Test adding a product from external API."""
         mock_product = {
@@ -244,7 +244,7 @@ class TestAddFromExternalAPI:
         assert response.json["quantity"] == 20
         assert len(inventory_db) == initial_count + 1
 
-    @patch("external_api.fetch_product_by_barcode")
+    @patch("app.fetch_product_by_barcode")
     def test_add_from_external_api_not_found(self, mock_fetch, client, reset_db):
         """Test adding a product that doesn't exist in external API."""
         mock_fetch.return_value = None
