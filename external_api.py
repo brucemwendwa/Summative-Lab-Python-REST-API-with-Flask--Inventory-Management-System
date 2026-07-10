@@ -3,15 +3,21 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# OpenFoodFacts Official API Reference:
+# https://openfoodfacts.github.io/openfoodfacts-server/api/
 OPENFOODSFACTS_URL = "https://world.openfoodfacts.org/api/v0/product"
+OPENFOODSFACTS_SEARCH_URL = "https://world.openfoodfacts.org/cgi/search.pl"
 
 
 def fetch_product_by_barcode(barcode):
     """
     Fetch product data from OpenFoodFacts API using a barcode.
 
+    API Reference: https://openfoodfacts.github.io/openfoodfacts-server/api/
+    Endpoint: GET /api/v0/product/{barcode}.json
+
     Args:
-        barcode (str): The product barcode
+        barcode (str): The product barcode (EAN, UPC, etc.)
 
     Returns:
         dict: Product data if found, None otherwise
@@ -42,14 +48,17 @@ def fetch_product_by_name(product_name):
     """
     Search for a product by name in OpenFoodFacts API.
 
+    API Reference: https://openfoodfacts.github.io/openfoodfacts-server/api/
+    Endpoint: GET /cgi/search.pl (Search API)
+
     Args:
         product_name (str): The product name to search for
 
     Returns:
-        list: List of matching products if found, empty list otherwise
+        list: List of matching products (max 5 results), empty list otherwise
     """
     try:
-        url = "https://world.openfoodfacts.org/cgi/search.pl"
+        url = OPENFOODSFACTS_SEARCH_URL
         params = {
             "search_terms": product_name,
             "json": 1,
