@@ -71,13 +71,12 @@ def update_item(item_id):
 @app.route("/inventory/<int:item_id>", methods=["DELETE"])
 def delete_item(item_id):
     """Delete an inventory item."""
-    global inventory_db
-    original_length = len(inventory_db)
-    inventory_db = [item for item in inventory_db if item["id"] != item_id]
+    item_to_delete = next((item for item in inventory_db if item["id"] == item_id), None)
 
-    if len(inventory_db) == original_length:
+    if not item_to_delete:
         return jsonify({"error": "Item not found"}), 404
 
+    inventory_db.remove(item_to_delete)
     return jsonify({"message": "Item deleted successfully"}), 200
 
 
