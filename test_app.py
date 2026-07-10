@@ -17,11 +17,13 @@ def client():
 @pytest.fixture
 def reset_db():
     """Reset the database before and after each test."""
-    original_db = inventory_db.copy()
+    original_db = [item.copy() for item in inventory_db]
     original_next_id = mock_database.next_id
+    inventory_db.clear()
+    inventory_db.extend([item.copy() for item in original_db])
     yield
     inventory_db.clear()
-    inventory_db.extend(original_db)
+    inventory_db.extend([item.copy() for item in original_db])
     mock_database.next_id = original_next_id
 
 
@@ -153,7 +155,7 @@ class TestDeleteEndpoint:
 class TestExternalAPIEndpoints:
     """Test suite for external API endpoints."""
 
-    @patch("external_api.fetch_product_by_barcode")
+    @patch("app.fetch_product_by_barcode")
     def test_search_by_barcode_success(self, mock_fetch, client, reset_db):
         """Test searching for a product by barcode."""
         mock_product = {
@@ -169,7 +171,7 @@ class TestExternalAPIEndpoints:
         assert response.status_code == 200
         assert response.json["product_name"] == "Mock Product"
 
-    @patch("external_api.fetch_product_by_barcode")
+    @patch("app.fetch_product_by_barcode")
     def test_search_by_barcode_not_found(self, mock_fetch, client, reset_db):
         """Test searching for a barcode that doesn't exist."""
         mock_fetch.return_value = None
@@ -178,7 +180,7 @@ class TestExternalAPIEndpoints:
         assert response.status_code == 404
         assert "error" in response.json
 
-    @patch("external_api.fetch_product_by_name")
+    @patch("app.fetch_product_by_name")
     def test_search_by_name_success(self, mock_search, client, reset_db):
         """Test searching for products by name."""
         mock_products = [
@@ -197,14 +199,14 @@ class TestExternalAPIEndpoints:
         assert isinstance(response.json, list)
         assert len(response.json) == 1
 
-    @patch("external_api.fetch_product_by_name")
+    @patch("app.fetch_product_by_name")
     def test_search_by_name_no_query(self, mock_search, client, reset_db):
         """Test searching without a query parameter."""
         response = client.get("/external-api/search/name")
         assert response.status_code == 400
         assert "error" in response.json
 
-    @patch("external_api.fetch_product_by_name")
+    @patch("app.fetch_product_by_name")
     def test_search_by_name_not_found(self, mock_search, client, reset_db):
         """Test searching for a name that doesn't exist."""
         mock_search.return_value = []
